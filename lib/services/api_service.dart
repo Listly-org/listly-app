@@ -1,6 +1,10 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:listly/services/toast_service.dart';
+import 'package:listly/storage.dart';
 
 class ApiService {
     ToastService toast = ToastService();
@@ -14,48 +18,48 @@ class ApiService {
     ApiService() {
         dio.interceptors.add(InterceptorsWrapper(
             onError: (e, handler) {
+                debugPrint(e.response.toString());
                 toast.displayToast('Something wrong happened, try again', 'error');
                 return handler.next(e);
             },
         ));
     }
 
-    _optionsHandler(bool useAuth) {
-        return Options(
-            headers: {
-                'Authorization': 'Bearer <DUMMY_VALUE>'
-            }
-        );
+    _optionsHandler(bool useAuth) async {
+        String? token = await storage.read(key: 'token');
+        return useAuth
+            ? Options(headers: { 'Authorization': 'Bearer $token' })
+            : Options();
     }
 
-    Future<Response> get(String url, {bool useAuth = true}) {
-        return dio.get(
+    Future<Response<dynamic>> get(String url, {bool useAuth = true}) async {
+        return dio.get<dynamic>(
             url, 
-            options: _optionsHandler(useAuth)
+            options: await _optionsHandler(useAuth)
         );
     }
 
-    Future<Response> post(String url, dynamic body, {bool useAuth = true}) {
-        return dio.post(
-            url, 
-            data: body,
-            options: _optionsHandler(useAuth)
-        );
-    }
-
-    Future<Response> put(String url, dynamic body, {bool useAuth = true}) {
-        return dio.put(
+    Future<Response<dynamic>> post(String url, dynamic body, {bool useAuth = true}) async {
+        return dio.post<dynamic>(
             url, 
             data: body,
-            options: _optionsHandler(useAuth)
+            options: await _optionsHandler(useAuth)
         );
     }
 
-    Future<Response> delete(String url, dynamic body, {bool useAuth = true}) {
-        return dio.delete(
+    Future<Response<dynamic>> put(String url, dynamic body, {bool useAuth = true}) async {
+        return dio.put<dynamic>(
             url, 
             data: body,
-            options: _optionsHandler(useAuth)
+            options: await _optionsHandler(useAuth)
+        );
+    }
+
+    Future<Response<dynamic>> delete(String url, dynamic body, {bool useAuth = true}) async {
+        return dio.delete<dynamic>(
+            url, 
+            data: body,
+            options: await _optionsHandler(useAuth)
         );
     }
 }

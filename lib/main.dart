@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:listly/pages/lists_page.dart';
 import 'package:listly/pages/login_page.dart';
 import 'package:listly/pages/sign_up_page.dart';
 
@@ -14,7 +15,8 @@ Future main() async {
             themeMode: ThemeMode.dark,
             routes: <String, WidgetBuilder>{
                 '/': (BuildContext context) => const LoginPage(),
-                '/sign-up': (BuildContext context) => const SignUpPage()
+                '/sign-up': (BuildContext context) => const SignUpPage(),
+                '/lists': (BuildContext context) => const ListsPage()
             },
         )
     );

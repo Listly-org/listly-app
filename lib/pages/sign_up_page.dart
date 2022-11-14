@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
@@ -22,9 +21,8 @@ class SignUpPageState extends State<SignUpPage> {
 
     void submit() {
         final formData = formKey.currentState?.value;
-        debugPrint(jsonEncode(formData));
             
-        api.post('/user', formData)
+        api.post('/user', formData, useAuth: false)
             .then((value) {
                 toast.displayToast('Account created successfully!', 'success');
                 Navigator.pushNamed(context, '/');

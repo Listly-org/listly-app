@@ -1,9 +1,9 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:listly/services/api_service.dart';
 import 'package:listly/services/toast_service.dart';
+import 'package:listly/storage.dart';
 
 class LoginPage extends StatefulWidget {
     const LoginPage({super.key});
@@ -20,13 +20,16 @@ class LoginPageState extends State<LoginPage> {
 
     final formKey = GlobalKey<FormBuilderState>();
 
-    void submit() {
+    void submit() async {
         final formData = formKey.currentState?.value;
 
-        api.post('/login', formData)
-            .then((value) {
-                debugPrint(value.toString());
-            });
+        api.post('/login', formData, useAuth: false)
+            .then((value) async {
+                Map response = value.data;
+                await storage.write(key: 'user', value: response['user'].toString());
+                await storage.write(key: 'token', value: response['token'].toString());
+            })
+            .then((value) => Navigator.pushNamed(context, '/lists'));
     }
 
     @override
