@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:listly/services/api_service.dart';
+import 'package:listly/services/toast_service.dart';
 
 class LoginPage extends StatefulWidget {
     const LoginPage({super.key});
@@ -14,27 +15,17 @@ class LoginPage extends StatefulWidget {
 }
 
 class LoginPageState extends State<LoginPage> {
+    ToastService toast = ToastService();
     ApiService api = ApiService();
+
     final formKey = GlobalKey<FormBuilderState>();
 
     void submit() {
         final formData = formKey.currentState?.value;
-        debugPrint(jsonEncode(formData));
 
         api.post('/login', formData)
             .then((value) {
                 debugPrint(value.toString());
-            })
-            .catchError((onError) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                        content: Text('Something wrong happened, try again'),
-                        action: SnackBarAction(
-                            label: 'OK',
-                            onPressed: () {},
-                        ),
-                    )
-                );
             });
     }
 
@@ -51,11 +42,11 @@ class LoginPageState extends State<LoginPage> {
                         width: MediaQuery.of(context).size.width / 3
                     ),
                     Text(
-                        'Welcome', 
+                        'Welcome back!', 
                         style: Theme.of(context).textTheme.headline3
                     ),
                     Text(
-                        'Please login or sign up our app',
+                        'Log in to your existing account of Listly',
                         style: Theme.of(context).textTheme.subtitle2,
                     ),
                     SizedBox(height: 40),
@@ -95,7 +86,12 @@ class LoginPageState extends State<LoginPage> {
                             ElevatedButton(
                                 onPressed: () {
                                     formKey.currentState!.save();
-                                    if(formKey.currentState!.isValid) submit();
+                                    formKey.currentState!.validate();
+                                    if(formKey.currentState!.isValid) {
+                                        submit();
+                                    } else {
+                                        toast.displayToast('Check the fields and try again', 'info');
+                                    }
                                 },
                                 child: Text('Log in'),
                             )
