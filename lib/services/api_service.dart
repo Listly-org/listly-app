@@ -1,12 +1,11 @@
-import 'dart:convert';
-
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:listly/services/storage_service.dart';
 import 'package:listly/services/toast_service.dart';
-import 'package:listly/storage.dart';
 
 class ApiService {
+    StorageService storage = StorageService();
     ToastService toast = ToastService();
 
     final Dio dio = Dio(BaseOptions(
@@ -26,7 +25,7 @@ class ApiService {
     }
 
     _optionsHandler(bool useAuth) async {
-        String? token = await storage.read(key: 'token');
+        String? token = await storage.getToken();
         return useAuth
             ? Options(headers: { 'Authorization': 'Bearer $token' })
             : Options();

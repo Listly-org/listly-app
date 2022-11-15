@@ -1,9 +1,11 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:listly/services/api_service.dart';
+import 'package:listly/services/storage_service.dart';
 import 'package:listly/services/toast_service.dart';
-import 'package:listly/storage.dart';
+import 'package:listly/shared/models/user.dart';
 
 class LoginPage extends StatefulWidget {
     const LoginPage({super.key});
@@ -17,6 +19,7 @@ class LoginPage extends StatefulWidget {
 class LoginPageState extends State<LoginPage> {
     ToastService toast = ToastService();
     ApiService api = ApiService();
+    StorageService storage = StorageService();
 
     final formKey = GlobalKey<FormBuilderState>();
 
@@ -25,11 +28,30 @@ class LoginPageState extends State<LoginPage> {
 
         api.post('/login', formData, useAuth: false)
             .then((value) async {
-                Map response = value.data;
-                await storage.write(key: 'user', value: response['user'].toString());
-                await storage.write(key: 'token', value: response['token'].toString());
+                await storage.setUser(json.encode(value.data['user']));
+                await storage.setToken(value.data['token'].toString());
             })
             .then((value) => Navigator.pushNamed(context, '/lists'));
+    }
+    
+    void checkUser() async {
+        User? user = await storage.getUser();
+
+        if(user == null) return;
+        
+        if(mounted) {
+            Navigator.pushNamed(
+                context, 
+                user.groupId == null ? '/group' : '/lists'
+            );
+        }
+    }
+
+    @override
+    void initState() {
+        super.initState();
+
+        checkUser();
     }
 
     @override
