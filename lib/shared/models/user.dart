@@ -13,7 +13,7 @@ class User {
             json['name'] as String,
             json['email'] as String,
             json['password'] as String,
-            json['groupId'] as int?
+            json['group_id'] as int?
         );
     }
 }
