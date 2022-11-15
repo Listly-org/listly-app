@@ -3,6 +3,11 @@ import 'package:listly/shared/models/user.dart';
 import 'package:listly/storage.dart';
 
 class StorageService {
+    Future<void> clear() async {
+        await storage.delete(key: 'token');
+        await storage.delete(key: 'user');
+    }
+
     Future<String?> getToken() async {
         String? token = await storage.read(key: 'token');
         return token;
