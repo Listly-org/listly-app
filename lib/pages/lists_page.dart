@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:listly/services/api_service.dart';
+import 'package:listly/shared/services/api_service.dart';
 
 class ListsPage extends StatefulWidget {
     const ListsPage({super.key});

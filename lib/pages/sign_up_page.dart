@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
-import 'package:listly/services/api_service.dart';
-import 'package:listly/services/toast_service.dart';
+import 'package:listly/shared/services/api_service.dart';
+import 'package:listly/shared/services/toast_service.dart';
 
 class SignUpPage extends StatefulWidget {
     const SignUpPage({super.key});

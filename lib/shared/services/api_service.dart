@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:listly/services/storage_service.dart';
-import 'package:listly/services/toast_service.dart';
+import 'package:listly/shared/services/storage_service.dart';
+import 'package:listly/shared/services/toast_service.dart';
 
 class ApiService {
     StorageService storage = StorageService();

@@ -2,9 +2,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
-import 'package:listly/services/api_service.dart';
-import 'package:listly/services/storage_service.dart';
-import 'package:listly/services/toast_service.dart';
+import 'package:listly/shared/services/api_service.dart';
+import 'package:listly/shared/services/storage_service.dart';
+import 'package:listly/shared/services/toast_service.dart';
 import 'package:listly/shared/models/user.dart';
 
 class LoginPage extends StatefulWidget {
@@ -30,8 +30,17 @@ class LoginPageState extends State<LoginPage> {
             .then((value) async {
                 await storage.setUser(json.encode(value.data['user']));
                 await storage.setToken(value.data['token'].toString());
+                User? user = await storage.getUser();
+                return user;
             })
-            .then((value) => Navigator.pushNamed(context, '/lists'));
+            .then((user) {
+                if(user != null) {
+                    Navigator.pushNamed(
+                        context, 
+                        user.groupId == null ? '/group' : '/lists'
+                    );
+                }
+            });
     }
     
     void checkUser() async {
