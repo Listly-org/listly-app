@@ -26,7 +26,9 @@ class GroupPageState extends State<GroupPage> {
     User user = User(0, '', '', '', null);
     List<Group> groups = [];
 
-    final formKey = GlobalKey<FormBuilderState>();
+    final joinForm = GlobalKey<FormBuilderState>();
+
+    final addForm = GlobalKey<FormBuilderState>();
 
     Future<void> loadData() async {
         User? currentUser = await storage.getUser();
@@ -40,7 +42,7 @@ class GroupPageState extends State<GroupPage> {
 
     void submit() async {
         final payload = {
-            'group_id': formKey.currentState?.value['group'].id
+            'group_id': joinForm.currentState?.value['group']
         };
 
         api.put('/user/join-group', payload)
@@ -52,6 +54,18 @@ class GroupPageState extends State<GroupPage> {
                 toast.displayToast('Joined group successfully!', 'success');
                 Navigator.pushNamed(context, '/lists');
             });
+    }
+
+    void addSubmit() async {
+        final payload = {
+            'name': addForm.currentState?.value['name']
+        };
+
+        api.post('/group', payload).then((value) {
+            Navigator.of(context).pop();
+            setState(() {});
+            toast.displayToast('Group created successfully!', 'success');
+        });
     }
 
     @override
@@ -82,9 +96,9 @@ class GroupPageState extends State<GroupPage> {
                             SizedBox(height: 40),
                             FormBuilder(
                                 autovalidateMode: AutovalidateMode.disabled,
-                                key: formKey,
+                                key: joinForm,
                                 child: Column(children: [
-                                    FormBuilderDropdown<Group>(
+                                    FormBuilderDropdown<int>(
                                         name: 'group',
                                         autovalidateMode: AutovalidateMode.onUserInteraction,
                                         decoration: InputDecoration(
@@ -94,7 +108,7 @@ class GroupPageState extends State<GroupPage> {
                                         ),
                                         items: groups.map((e) => DropdownMenuItem(
                                             alignment: AlignmentDirectional.centerStart,
-                                            value: e,
+                                            value: e.id,
                                             child: Text(e.name),
                                         )).toList(),
                                         validator: FormBuilderValidators.required(errorText: 'Group is required')
@@ -102,9 +116,9 @@ class GroupPageState extends State<GroupPage> {
                                     SizedBox(height: 40),
                                     ElevatedButton(
                                         onPressed: () {
-                                            formKey.currentState!.save();
-                                            formKey.currentState!.validate();
-                                            if(formKey.currentState!.isValid) {
+                                            joinForm.currentState!.save();
+                                            joinForm.currentState!.validate();
+                                            if(joinForm.currentState!.isValid) {
                                                 submit();
                                             } else {
                                                 toast.displayToast('Check the fields and try again', 'info');
@@ -116,7 +130,47 @@ class GroupPageState extends State<GroupPage> {
                             )
                         ]
                     )
-                )
+                ),
+                floatingActionButton: FloatingActionButton(
+                    tooltip: 'Create group',
+                    onPressed: () => showDialog(context: context, builder: (context) => AlertDialog(
+                        title: Text('Create group'),
+                        content: FormBuilder(
+                            autovalidateMode: AutovalidateMode.disabled,
+                            key: addForm,
+                            child: FormBuilderTextField(
+                                name: 'name',
+                                autofocus: true,
+                                autovalidateMode: AutovalidateMode.onUserInteraction,
+                                decoration: InputDecoration(
+                                    labelText: 'Group name',
+                                    hintText: 'My awesome group',
+                                    border: OutlineInputBorder()
+                                ),
+                                validator: FormBuilderValidators.required(errorText: 'Group name is required')
+                            )
+                        ),
+                        actions: [
+                            TextButton(
+                                onPressed: () => Navigator.of(context).pop(), 
+                                child: Text('Cancel')
+                            ),
+                            ElevatedButton(
+                                onPressed: () {
+                                    addForm.currentState!.save();
+                                    addForm.currentState!.validate();
+                                    if(addForm.currentState!.isValid) {
+                                        addSubmit();
+                                    } else {
+                                        toast.displayToast('Check the fields and try again', 'info');
+                                    }
+                                },
+                                child: Text('Create group')
+                            )
+                        ],
+                    )),
+                    child: Icon(Icons.add)
+                ),
             )
         );
     }
