@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:listly/shared/constants/options.dart';
+import 'package:listly/shared/models/check_list.dart';
 import 'package:listly/shared/services/api_service.dart';
 import 'package:listly/shared/services/toast_service.dart';
 import 'package:listly/shared/widgets/scaffold_widget.dart';
@@ -19,13 +20,23 @@ class ListsPageState extends State<ListsPage> {
     ApiService api = ApiService();
     ToastService toast = ToastService();
 
+    List<CheckList> checkLists = [];
+
     final addForm = GlobalKey<FormBuilderState>();
 
     Future<void> getLists() async {
-        api.get('/list', useAuth: true)
-            .then((value) {
-                debugPrint(value.data.toString());
-            });
+        await api.get('/list').then((value) {
+            List newChecklists = value.data['lists'];
+            checkLists = newChecklists.map((checkList) => CheckList(
+                checkList['id'],
+                checkList['name'],
+                checkList['type'],
+                checkList['value'],
+                checkList['items_count'],
+                checkList['completed_items_count'],
+                checkList['group_id']
+            )).toList();
+        });
     }
 
     void addSubmit() async {
@@ -47,7 +58,19 @@ class ListsPageState extends State<ListsPage> {
             future: getLists(),
             builder: (context, snapshot) => ScaffoldWidget(
                 title: 'My group lists',
-                body: Text('Aqui terá a listagem das listas'),
+                body: Container(
+                    width: MediaQuery.of(context).size.width, 
+                    padding: EdgeInsets.only(top: 40, left: 40, right: 40, bottom: 40),
+                    child: ListView(
+                        children: checkLists.map((checkList) => ListTile(
+                            title: Text(checkList.name),
+                            onTap: () {
+                                debugPrint(checkList.id.toString());
+                                Navigator.pushNamed(context, '/list', arguments: { 'id': checkList.id });
+                            }
+                        )).toList(),
+                    )
+                ),
                 floatingActionButton: FloatingActionButton(
                     tooltip: 'Create list',
                     onPressed: () => showDialog(context: context, builder: (context) => AlertDialog(
