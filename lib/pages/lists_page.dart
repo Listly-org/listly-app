@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
-import 'package:form_builder_validators/form_builder_validators.dart';
-import 'package:listly/shared/constants/options.dart';
 import 'package:listly/shared/models/check_list.dart';
 import 'package:listly/shared/services/api_service.dart';
-import 'package:listly/shared/services/toast_service.dart';
+import 'package:listly/shared/widgets/check_list_form_widget.dart';
+import 'package:listly/shared/widgets/check_list_widget.dart';
 import 'package:listly/shared/widgets/scaffold_widget.dart';
 
 class ListsPage extends StatefulWidget {
@@ -18,7 +17,6 @@ class ListsPage extends StatefulWidget {
 
 class ListsPageState extends State<ListsPage> {
     ApiService api = ApiService();
-    ToastService toast = ToastService();
 
     List<CheckList> checkLists = [];
 
@@ -26,7 +24,7 @@ class ListsPageState extends State<ListsPage> {
 
     Future<void> getLists() async {
         await api.get('/list').then((value) {
-            List newChecklists = value.data['lists'];
+            List newChecklists = value.data['formated_lists'];
             checkLists = newChecklists.map((checkList) => CheckList(
                 checkList['id'],
                 checkList['name'],
@@ -39,19 +37,6 @@ class ListsPageState extends State<ListsPage> {
         });
     }
 
-    void addSubmit() async {
-        final payload = {
-            'name': addForm.currentState?.value['name'],
-            'type': addForm.currentState?.value['type']
-        };
-
-        api.post('/list', payload).then((value) {
-            Navigator.of(context).pop();
-            setState(() {});
-            toast.displayToast('List created successfully!', 'success');
-        });
-    }
-
     @override
     Widget build(BuildContext context) {
         return FutureBuilder(
@@ -60,77 +45,27 @@ class ListsPageState extends State<ListsPage> {
                 title: 'My group lists',
                 body: Container(
                     width: MediaQuery.of(context).size.width, 
-                    padding: EdgeInsets.only(top: 40, left: 40, right: 40, bottom: 40),
+                    padding: EdgeInsets.all(20),
                     child: ListView(
-                        children: checkLists.map((checkList) => ListTile(
-                            title: Text(checkList.name),
-                            onTap: () {
-                                debugPrint(checkList.id.toString());
-                                Navigator.pushNamed(context, '/list', arguments: { 'id': checkList.id });
-                            }
-                        )).toList(),
+                        children: checkLists.map((checkList) => Column(children: [
+                            CheckListWidget(
+                                checkList: checkList,
+                                update: (value) => setState(() {})
+                            ),
+                            SizedBox(height: 5),
+                        ])).toList()
                     )
                 ),
                 floatingActionButton: FloatingActionButton(
                     tooltip: 'Create list',
-                    onPressed: () => showDialog(context: context, builder: (context) => AlertDialog(
-                        title: Text('Create list'),
-                        content: FormBuilder(
-                            autovalidateMode: AutovalidateMode.disabled,
-                            key: addForm,
-                            child: Column(
-                                mainAxisSize: MainAxisSize.min, 
-                                children: [
-                                    FormBuilderTextField(
-                                        name: 'name',
-                                        autofocus: true,
-                                        autovalidateMode: AutovalidateMode.onUserInteraction,
-                                        decoration: InputDecoration(
-                                            labelText: 'List name',
-                                            hintText: 'My awesome list',
-                                            border: OutlineInputBorder()
-                                        ),
-                                        validator: FormBuilderValidators.required(errorText: 'List name is required')
-                                    ),
-                                    SizedBox(height: 20),
-                                    FormBuilderDropdown<String>(
-                                        name: 'type',
-                                        autovalidateMode: AutovalidateMode.onUserInteraction,
-                                        decoration: InputDecoration(
-                                            labelText: 'List type',
-                                            border: OutlineInputBorder()
-                                        ),
-                                        items: options.values.map((option) => DropdownMenuItem(
-                                            alignment: AlignmentDirectional.centerStart,
-                                            value: option.value,
-                                            child: Row(children: [option.icon, SizedBox(width: 10), option.label])
-                                        )).toList(),
-                                        validator: FormBuilderValidators.required(errorText: 'List type is required')
-                                    )
-                                ]
-                            )
-                        ),
-                        actions: [
-                            TextButton(
-                                onPressed: () => Navigator.of(context).pop(), 
-                                child: Text('Cancel')
-                            ),
-                            ElevatedButton(
-                                onPressed: () {
-                                    addForm.currentState!.save();
-                                    addForm.currentState!.validate();
-                                    if(addForm.currentState!.isValid) {
-                                        addSubmit();
-                                    } else {
-                                        toast.displayToast('Check the fields and try again', 'info');
-                                    }
-                                },
-                                child: Text('Create list')
-                            )
-                        ]
-                    )),
+                    onPressed: () => showDialog(
+                        context: context,
+                        builder: (context) {
+                            return CheckListFormWidget(update: (value) => setState(() {}));
+                        }
+                    ),
                     child: Icon(Icons.add)
-                ),
+                )
             )
         );
     }
