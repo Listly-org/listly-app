@@ -3,12 +3,16 @@ import 'package:listly/shared/services/storage_service.dart';
 
 class ScaffoldWidget extends StatefulWidget {
     final String title;
+    final Widget? barLeading;
+    final List<Widget>? barActions;
     final Widget body;
     final Widget? floatingActionButton;
 
     const ScaffoldWidget({
         super.key, 
         required this.title, 
+        this.barLeading,
+        this.barActions,
         required this.body,
         this.floatingActionButton
     });
@@ -29,7 +33,11 @@ class ScaffoldWidgetState extends State<ScaffoldWidget> {
 
     @override build(BuildContext context) {
         return Scaffold(
-            appBar: AppBar(title: Text(widget.title)),
+            appBar: AppBar(
+                title: Text(widget.title),
+                leading: widget.barLeading,
+                actions: widget.barActions
+            ),
             body: widget.body,
             floatingActionButton: widget.floatingActionButton,
             drawer: Drawer(child: ListView(
