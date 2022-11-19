@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:listly/pages/lists/widgets/check_list_widget.dart';
 import 'package:listly/shared/models/check_list.dart';
 import 'package:listly/shared/services/api_service.dart';
 import 'package:listly/shared/widgets/check_list_form_widget.dart';
-import 'package:listly/shared/widgets/check_list_widget.dart';
 import 'package:listly/shared/widgets/scaffold_widget.dart';
 
 class ListsPage extends StatefulWidget {

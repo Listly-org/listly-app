@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:listly/pages/list/widgets/check_list_item_options_widget.dart';
 import 'package:listly/shared/models/check_list_item.dart';
 import 'package:listly/shared/services/api_service.dart';
-import 'package:listly/shared/widgets/check_list_item_options_widget.dart';
 
 class CheckListItemWidget extends StatefulWidget {
     final ValueChanged update;
